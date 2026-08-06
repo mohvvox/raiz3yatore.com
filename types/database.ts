@@ -511,6 +511,16 @@ export type Database = {
         }
         Returns: { transaction_id: string; balance_after: Money }[]
       }
+      /** يُرجع دور المستخدم الحالي الإداري أو null — بديل آمن عن قراءة admin_roles */
+      current_admin_role: {
+        Args: Record<string, never>
+        Returns: AdminRole | null
+      }
+      /** true لو المستخدم الحالي أدمن (أي دور) وغير محظور */
+      is_admin: {
+        Args: Record<string, never>
+        Returns: boolean
+      }
     }
     Enums: {
       wallet_txn_type: WalletTransactionType

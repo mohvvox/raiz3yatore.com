@@ -62,6 +62,41 @@ export const ENV_SPEC: EnvVarSpec[] = [
   },
 ]
 
+/** رابط مشروع Supabase (عام) */
+export function getSupabaseUrl(): string {
+  const value = process.env.NEXT_PUBLIC_SUPABASE_URL
+  if (!value) {
+    throw new Error('متغير البيئة NEXT_PUBLIC_SUPABASE_URL غير مضبوط. راجع ملف .env.example.')
+  }
+  return value
+}
+
+/** مفتاح anon العام لـ Supabase — محمي بـ RLS، آمن للمتصفح */
+export function getSupabaseAnonKey(): string {
+  const value = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!value) {
+    throw new Error('متغير البيئة NEXT_PUBLIC_SUPABASE_ANON_KEY غير مضبوط. راجع ملف .env.example.')
+  }
+  return value
+}
+
+/**
+ * مفتاح service role — يتجاوز RLS.
+ * ممنوع نداء هذه الدالة من أي ملف يُنفَّذ في المتصفح.
+ */
+export function getSupabaseServiceRoleKey(): string {
+  return requireServerEnv('SUPABASE_SERVICE_ROLE_KEY')
+}
+
+/** رابط الموقع الأساسي بدون / في النهاية */
+export function getSiteUrl(): string {
+  const value =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
+    'http://localhost:3000'
+  return value.replace(/\/+$/, '')
+}
+
 /** قراءة متغير سيرفر إلزامي — يرمي خطأ واضح لو مفقود */
 export function requireServerEnv(key: string): string {
   const value = process.env[key]

@@ -10,8 +10,8 @@
 | # | الجزء | الحالة |
 |---|---|---|
 | 1 | تهيئة المشروع | مكتمل |
-| 2 | تصميم قاعدة البيانات (Supabase) | لم يبدأ |
-| 3 | طبقة الأمان الأساسية (RLS) | لم يبدأ |
+| 2 | تصميم قاعدة البيانات (Supabase) | مكتمل |
+| 3 | طبقة الأمان الأساسية (RLS) | مكتمل |
 | 4 | نظام المصادقة | لم يبدأ |
 | 5 | نظام التصميم المشترك | لم يبدأ |
 | 6 | الهيكل العام للموقع | لم يبدأ |
@@ -40,11 +40,40 @@ components/
   customer/
   admin/
 lib/
-  supabase/        عملاء Supabase (browser / server / service role)
-  validators/      التحقق من المدخلات
+  supabase/        عملاء Supabase (client / server / admin / middleware)
+  security/        الحرّاس والصلاحيات وتحديد المعدل وسجل التدقيق والأخطاء
+  api/             غلاف Route Handlers الموحّد
+  validators/      التحقق من المدخلات (Zod)
   env.ts           متغيرات البيئة الموثّقة
 types/             أنواع قاعدة البيانات و الـ API (مصدر واحد للحقيقة)
+proxy.ts           تحديث جلسة Supabase وحماية المسارات
 ```
+
+## طبقة الأمان (الجزء 3)
+
+| الملف | الدور |
+|---|---|
+| `lib/supabase/client.ts` | عميل المتصفح (anon + RLS) |
+| `lib/supabase/server.ts` | عميل السيرفر بجلسة المستخدم (anon + RLS) |
+| `lib/supabase/admin.ts` | عميل service role — يتجاوز RLS، سيرفر فقط بعد التحقق من الصلاحية |
+| `lib/supabase/middleware.ts` | تحديث الجلسة + توجيه المسارات المحمية |
+| `lib/security/guards.ts` | `requireUser` / `requireAdmin` / `requirePermission` + مصفوفة صلاحيات الأدوار |
+| `lib/security/rate-limit.ts` | حدود الطلبات لكل عملية حساسة (دخول، شحن، كوبونات، كروت) |
+| `lib/security/audit.ts` | كتابة `audit_log` لكل عملية إدارية |
+| `lib/security/errors.ts` | أخطاء HTTP برسائل عربية بدون تسريب تفاصيل |
+| `lib/api/route.ts` | `createApiRoute` — الغلاف الإلزامي لكل مسار API |
+| `lib/validators/common.ts` | قواعد Zod مشتركة (مبالغ، أكواد، كميات، بيانات اللاعب) |
+
+قواعد ملزمة لكل الأجزاء القادمة:
+
+- كل Route Handler يُكتب عبر `createApiRoute` فقط، مع تحديد `auth` و`schema` و`rateLimit`.
+- `createAdminClient()` لا يُستدعى قبل `requireUser` أو `requireAdmin` / `requirePermission`.
+- كل تغيير على الرصيد يمر عبر الدالة الذرية `apply_wallet_transaction` في قاعدة البيانات.
+- كل عملية إدارية حساسة تُسجَّل بـ `writeAuditLog`.
+- ممنوع `dangerouslySetInnerHTML` مع أي نص قادم من المستخدم.
+
+سياسات RLS تُطبَّق على قاعدة البيانات يدوياً من مالك المشروع عبر Supabase SQL Editor
+(لا تُنفَّذ من داخل الكود ولا تُحفظ كملفات migration في هذا المستودع).
 
 ## نظام الألوان
 
