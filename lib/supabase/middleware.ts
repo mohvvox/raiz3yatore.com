@@ -7,7 +7,7 @@
  */
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { getSupabaseAnonKey, getSupabaseUrl } from '@/lib/env'
+import { getSupabaseAnonKey, getSupabaseUrl, hasSupabaseEnv } from '@/lib/env'
 import type { Database } from '@/types/database'
 
 /** مسارات العميل التي تتطلب تسجيل دخول */
@@ -32,6 +32,15 @@ function startsWithAny(pathname: string, prefixes: string[]) {
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request })
+
+  // بدون متغيرات Supabase لا توجد جلسة يمكن تحديثها. نمرّر الطلب كما هو
+  // بدل إسقاط كل مسارات الموقع بخطأ 500 غامض.
+  if (!hasSupabaseEnv()) {
+    console.error(
+      '[v0] متغيرات Supabase غير مضبوطة (NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY). تم تخطي تحديث الجلسة.',
+    )
+    return response
+  }
 
   const supabase = createServerClient<Database>(getSupabaseUrl(), getSupabaseAnonKey(), {
     cookies: {

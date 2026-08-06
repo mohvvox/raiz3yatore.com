@@ -62,6 +62,11 @@ export type RouteOptions<A extends AuthLevel, TBody> = {
   schema?: ZodType<TBody>
   /** قاعدة تحديد المعدل من RATE_LIMITS */
   rateLimit?: RateLimitName
+  /**
+   * السماح للحساب المحظور بتنفيذ المسار (يعمل فقط مع auth: 'public').
+   * الاستخدام الوحيد المشروع: تسجيل الخروج — لا يجوز حبس المحظور داخل جلسته.
+   */
+  allowBanned?: boolean
 }
 
 type NextRouteArgs = { params?: Promise<Record<string, string>> }
@@ -99,7 +104,7 @@ export function createApiRoute<A extends AuthLevel = 'user', TBody = undefined>(
         actor = await requireUser()
       } else {
         actor = await getActor()
-        if (actor?.profile?.is_banned) throw errors.banned()
+        if (actor?.profile?.is_banned && !options.allowBanned) throw errors.banned()
       }
 
       // تحديد المعدل مرة ثانية لكل مستخدم (منع الالتفاف بتغيير IP)

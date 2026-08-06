@@ -164,6 +164,28 @@ export default function SetupPage() {
         </ul>
       </section>
 
+      <section aria-labelledby="auth-title" className="flex flex-col gap-4">
+        <h2 id="auth-title" className="flex items-center gap-2 text-lg font-semibold">
+          <LogIn className="size-5 text-primary" aria-hidden="true" />
+          نظام المصادقة (الجزء 4)
+        </h2>
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {authPages.map((page) => (
+            <li key={page.href}>
+              <Link
+                href={page.href}
+                className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/40"
+              >
+                <span className="text-sm">{page.label}</span>
+                <span className="font-mono text-xs text-muted-foreground" dir="ltr">
+                  {page.href}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section
         aria-labelledby="next-title"
         className="flex flex-col gap-3 rounded-lg border border-primary/25 bg-primary/5 p-5"
@@ -173,11 +195,8 @@ export default function SetupPage() {
           الخطوة التالية
         </h2>
         <p className="text-pretty text-sm leading-relaxed text-muted-foreground">
-          الجزء 2: تصميم قاعدة البيانات الكاملة على Supabase حسب القسم 3 من ملف
-          <code className="mx-1 font-mono text-foreground" dir="ltr">
-            PROJECT_SPEC.md
-          </code>
-          مع العلاقات والقيود، ثم الجزء 3: تفعيل RLS على كل الجداول.
+          الجزء 5: نظام التصميم المشترك (Design System) المبني على توكنات الألوان أعلاه، ثم الجزء 6:
+          الهيكل العام للموقع (الهيدر والفوتر والتنقل).
         </p>
         <p className="flex items-center gap-2 text-xs text-muted-foreground">
           <Type className="size-4 shrink-0" aria-hidden="true" />

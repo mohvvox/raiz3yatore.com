@@ -88,6 +88,15 @@ export function getSupabaseServiceRoleKey(): string {
   return requireServerEnv('SUPABASE_SERVICE_ROLE_KEY')
 }
 
+/**
+ * هل متغيرات Supabase العامة مضبوطة؟
+ * تُستخدم في proxy.ts حتى لا يسقط الموقع بالكامل لو نُسي ضبط المتغيرات،
+ * وتظهر رسالة واضحة في السجلات بدل خطأ 500 غامض على كل مسار.
+ */
+export function hasSupabaseEnv(): boolean {
+  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+}
+
 /** رابط الموقع الأساسي بدون / في النهاية */
 export function getSiteUrl(): string {
   const value =
