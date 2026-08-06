@@ -6,8 +6,11 @@ __v0_jsx-dev-runtime.ts
 .v0-trash/
 .vercel/
 
-# Environment variables
-.env*.local
+# Environment variables — يمنع رفع أي ملف أسرار
+# الاستثناء الوحيد هو .env.example لأنه توثيق بدون قيم حقيقية
+.env
+.env.*
+!.env.example
 
 # Common ignores
 node_modules
