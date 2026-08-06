@@ -1,14 +1,23 @@
+import Link from 'next/link'
 import {
   CircleCheck,
   CircleDashed,
   Database,
   FolderTree,
   KeyRound,
+  LogIn,
   Palette,
   ShieldCheck,
   Type,
 } from 'lucide-react'
 import { ENV_SPEC } from '@/lib/env'
+
+const authPages = [
+  { label: 'تسجيل الدخول', href: '/login' },
+  { label: 'إنشاء حساب', href: '/signup' },
+  { label: 'استعادة كلمة المرور', href: '/forgot-password' },
+  { label: 'تأكيد البريد الإلكتروني', href: '/verify-email' },
+]
 
 const stack = [
   { label: 'Next.js 16 — App Router', value: 'جاهز' },
