@@ -102,7 +102,7 @@ export type WalletRow = {
   updated_at: Timestamp
 }
 export type WalletInsert = { user_id: string; balance?: Money }
-/** ممنوع تعديل balance من العميل — يتم فقط عبر apply_wallet_transaction */
+/** ممنوع تعديل balance من العميل — يتم فقط في السيرفر بمفتاح service_role */
 export type WalletUpdate = { balance?: Money }
 
 // =====================================================================
@@ -335,37 +335,6 @@ export type GiftCardUpdate = {
 }
 
 // =====================================================================
-// gift_card_redemptions
-// =====================================================================
-export type GiftCardRedemptionRow = {
-  id: string
-  gift_card_id: string
-  user_id: string
-  amount: Money
-  transaction_id: string | null
-  created_at: Timestamp
-}
-export type GiftCardRedemptionInsert = {
-  gift_card_id: string
-  user_id: string
-  amount: Money
-  transaction_id?: string | null
-}
-export type GiftCardRedemptionUpdate = never
-
-// =====================================================================
-// referrals
-// =====================================================================
-export type ReferralRow = {
-  id: string
-  referrer_id: string
-  referred_user_id: string
-  created_at: Timestamp
-}
-export type ReferralInsert = { referrer_id: string; referred_user_id: string }
-export type ReferralUpdate = never
-
-// =====================================================================
 // referral_earnings
 // =====================================================================
 export type ReferralEarningRow = {
@@ -488,12 +457,6 @@ export type Database = {
       orders: TableDef<OrderRow, OrderInsert, OrderUpdate>
       order_items: TableDef<OrderItemRow, OrderItemInsert, OrderItemUpdate>
       gift_cards: TableDef<GiftCardRow, GiftCardInsert, GiftCardUpdate>
-      gift_card_redemptions: TableDef<
-        GiftCardRedemptionRow,
-        GiftCardRedemptionInsert,
-        GiftCardRedemptionUpdate
-      >
-      referrals: TableDef<ReferralRow, ReferralInsert, ReferralUpdate>
       referral_earnings: TableDef<ReferralEarningRow, ReferralEarningInsert, ReferralEarningUpdate>
       notifications: TableDef<NotificationRow, NotificationInsert, NotificationUpdate>
       admin_roles: TableDef<AdminRoleRow, AdminRoleInsert, AdminRoleUpdate>
@@ -501,15 +464,11 @@ export type Database = {
       reviews: TableDef<ReviewRow, ReviewInsert, ReviewUpdate>
     }
     Views: Record<string, never>
+    /** الدوال الموجودة فعلياً في قاعدة البيانات */
     Functions: {
-      apply_wallet_transaction: {
-        Args: {
-          p_user_id: string
-          p_amount: number
-          p_type: WalletTransactionType
-          p_reference_id?: string | null
-        }
-        Returns: { transaction_id: string; balance_after: Money }[]
+      is_admin: {
+        Args: Record<string, never>
+        Returns: boolean
       }
     }
     Enums: {

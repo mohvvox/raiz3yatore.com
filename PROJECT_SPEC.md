@@ -208,46 +208,6 @@
 
 ---
 
-### `referrals` (علاقة الإحالة — مضاف في الجزء 2 حسب خطة المشروع)
-| العمود | النوع |
-|---|---|
-| id | uuid |
-| referrer_id | uuid → users.id |
-| referred_user_id | uuid → users.id, unique (كل مستخدم له محيل واحد فقط) |
-| created_at | timestamptz |
-
-### `gift_card_redemptions` (سجل استبدال كروت الهدايا — مضاف في الجزء 2 حسب خطة المشروع)
-| العمود | النوع |
-|---|---|
-| id | uuid |
-| gift_card_id | uuid → gift_cards.id, unique (الكارت يُستبدل مرة واحدة) |
-| user_id | uuid → users.id |
-| amount | numeric(12,2) |
-| transaction_id | uuid nullable → wallet_transactions.id |
-| created_at | timestamptz |
-
----
-
-## 3.1 الدالة الوحيدة المسموح بها لتغيير الرصيد
-
-```sql
-apply_wallet_transaction(
-  p_user_id uuid,
-  p_amount numeric,        -- موجب = إضافة، سالب = خصم
-  p_type public.wallet_txn_type,
-  p_reference_id uuid default null
-) returns table (transaction_id uuid, balance_after numeric)
-```
-
-- تقفل صف المحفظة (`for update`) وتحدّث الرصيد وتكتب سجل `wallet_transactions` في عملية ذرية واحدة.
-- ترفض العملية إذا أصبح الرصيد سالباً أو كانت القيمة صفراً.
-- صلاحية التنفيذ لـ `service_role` فقط — ممنوع ندائها من العميل.
-- `wallet_transactions` و `audit_log` محميان بتريجر يمنع التعديل أو الحذف بعد الإنشاء.
-
-ملفات المخطط: `scripts/001_schema.sql` (الجداول والقيود والفهارس) و `scripts/002_functions_triggers.sql` (الدوال والتريجرز).
-
----
-
 ## 4. قواعد أمان إلزامية (Row Level Security)
 
 - كل جدول فيه بيانات مستخدم لازم RLS مفعّل، والقاعدة: المستخدم يشوف بس صفوفه (`user_id = auth.uid()`).
