@@ -73,14 +73,14 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && pathname.startsWith(ADMIN_PREFIX)) {
-    // جدول admin_roles غير مرئي للعميل في RLS، لذا نستخدم الدالة الآمنة
-    // current_admin_role() التي تُرجع دور المستخدم الحالي فقط.
+    // سياسة admin_roles_select_own في قاعدة البيانات تسمح للمستخدم بقراءة صفّه
+    // هو فقط، فالقراءة المباشرة هنا آمنة ولا تكشف بقية المشرفين.
     const [{ data: adminRole }, { data: profile }] = await Promise.all([
-      supabase.rpc('current_admin_role'),
+      supabase.from('admin_roles').select('role').eq('user_id', user.id).maybeSingle(),
       supabase.from('users').select('is_banned').eq('id', user.id).maybeSingle(),
     ])
 
-    if (!adminRole || profile?.is_banned) {
+    if (!adminRole?.role || profile?.is_banned) {
       const url = request.nextUrl.clone()
       url.pathname = '/'
       url.search = ''
