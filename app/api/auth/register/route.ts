@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
 
 export async function POST(request: Request) {
   try {
@@ -12,11 +13,15 @@ export async function POST(request: Request) {
     }
 
     const admin = createAdminClient();
+    const supabase = await createClient();
 
-    const { data: authData, error: authError } = await admin.auth.admin.createUser({
+    // نستخدم signUp العادية (مش admin.createUser) عشان Supabase يبعت إيميل التفعيل تلقائياً
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
-      email_confirm: false,
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/login`,
+      },
     });
 
     if (authError || !authData.user) {
