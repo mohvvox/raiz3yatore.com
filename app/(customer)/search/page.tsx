@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Search as SearchIcon, Package } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
@@ -13,7 +13,7 @@ interface ProductResult {
   stock: number | null;
 }
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [results, setResults] = useState<ProductResult[]>([]);
@@ -85,5 +85,21 @@ export default function SearchPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <p className="text-[var(--text-muted)] text-sm text-center py-8">
+            جاري التحميل...
+          </p>
+        </div>
+      }
+    >
+      <SearchContent />
+    </Suspense>
   );
 }
